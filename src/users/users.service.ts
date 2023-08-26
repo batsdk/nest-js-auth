@@ -12,5 +12,10 @@ export class UsersService {
         return this.repository.findOne({where: {username}})
     }
 
+    async createUser(username:string, password: string) {
+        const user = this.repository.create({username, password})
+        return this.repository.save(user);
+    }
+
 
 }
