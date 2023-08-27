@@ -3,13 +3,17 @@ import { scrypt as _scrypt, randomBytes } from 'crypto';
 import { UsersService } from 'src/users/users.service';
 import { promisify } from 'util';
 import { CreateUserDto } from './dto/create-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 const scrypt = promisify(_scrypt)
 
 @Injectable()
 export class AuthService {
 
-    constructor(private userService: UsersService) {}
+    constructor(
+            private userService: UsersService,
+            private jwtService: JwtService,
+        ) {}
 
     async singIn({username, password} : CreateUserDto): Promise<any>{
         const user = await this.userService.findOne(username)
@@ -26,9 +30,11 @@ export class AuthService {
             throw new UnauthorizedException("Wrong username or password");
         }
 
-        //* <-- TODO --> Generate JWT and return it
-        const {password : pw, ...userDetails} = user;
-        return userDetails;
+        const payload = {sub: user.id, username: user.username};
+        return {
+            access_token: await this.jwtService.signAsync(payload),
+            id: user.id
+        }
 
     }
 
