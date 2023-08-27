@@ -1,6 +1,7 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get,Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { AuthGaurd } from 'src/gaurds/auth.gaurd';
 
 @Controller('auth')
 export class AuthController {
@@ -14,4 +15,11 @@ export class AuthController {
   logUser(@Body() user: CreateUserDto) {
     return this.service.singIn(user);
   }
+
+  @UseGuards(AuthGaurd)
+  @Get("/user")
+  getUserDetails(@Request() request){
+    return request.user;
+  }
+
 }
